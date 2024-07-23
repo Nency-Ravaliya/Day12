@@ -1,68 +1,88 @@
-Addressbook Tutorial
-====================
+# Jenkins Maven Projects Setup
 
-This tutorial teaches you some of the basic concepts in [Vaadin Framework](https://vaadin.com). It is meant to be
-a fast read for learning how to get started - not an example on how application should be
-designed. Please note this example uses and requires Java 8 to work.
+## Overview
 
-![Addressbook Screenshot](addressbook_screenshot.png "Addressbook Screenshot")
+This repository is set up to use Jenkins for automating the build and test process of a Maven project. We have two Jenkins freestyle projects configured:
 
+1. **Maven-Compile**: Compiles the Maven project.
+2. **Maven-Test**: Runs tests on the Maven project.
 
-Running the example from the command line
--------------------
-```
-$ mvn jetty:run
-```
+The `Maven-Compile` project triggers the `Maven-Test` project upon successful completion.
 
-Open [http://localhost:8080/](http://localhost:8080/)
+## Prerequisites
 
+Before setting up the Jenkins projects, ensure the following plugins are installed:
 
-Importing in IntelliJ IDEA 14
---------------------
-These instructions were tested on IntelliJ IDEA 14 CE. You can get it from https://www.jetbrains.com/idea/
+1. **Build Pipeline Plugin**
+   - Enables visualization of the build pipeline and triggers downstream jobs.
+   
+2. **GitHub API Plugin**
+   - Provides GitHub integration for Jenkins to access repositories.
 
-To get the project up and running in IDEA, do:
-- File -> New -> Project from Version Control -> Git
-- The URL to use is https://github.com/vaadin/addressbook.git
-- If you get a message about "Non-managed pom.xml file found". Choose "Add as Maven Project"
-- If you get a message about no JDK or SDK being selected. Choose "Configure" and select your installed JDK. You can also set the JDK using File -> Project Structure
-- To start the project, find the "Maven Projects" tab on the right hand side of the screen and navigate to
-  - Vaadin Web Application -> Plugins -> jetty -> jetty:run
-  - Click the play button or right click and select Run (Select Debug instead to run in debug mode)
+3. **GitHub Integration Plugin**
+   - Allows Jenkins to integrate with GitHub repositories, including authentication and notifications.
 
-You should now have a Jetty server running on localhost:8080. Navigate to http://localhost:8080 to play with the application
+## Jenkins Project Configuration
 
-Importing in NetBeans 8
---------------------
-These instructions were tested on NetBeans 8.0.2. You can get it from https://www.netbeans.org
+### Maven-Compile
 
-To checkout and run the project in NetBeans, do:
-- Team -> Git -> Clone
-- Set repository URL to https://github.com/vaadin/addressbook.git
-- Finish
-- Right click the imported project (Vaadin Addressbook Application) and select Run
-- Select GlassFish Server 4.1 -> Remember in Current IDE Session -> OK
+1. **Create a Freestyle Project**: 
+   - Go to Jenkins dashboard.
+   - Click on "New Item" and select "Freestyle project".
+   - Name the project `Maven-Compile` and click "OK".
 
-You should now have a GlassFish server running on localhost:8080 and a browser tab should also be automatically opened with this location
+2. **Source Code Management**:
+   - Under "Source Code Management", select "Git".
+   - Enter your GitHub repository URL.
+   - Add your GitHub credentials to access the private repository.
 
-Importing in Eclipse
---------------------
-These instructions were tested on Eclipse IDE for Java EE Developers Luna SR2. You can get it from http://eclipse.org/downloads/
+3. **Build**:
+   - Under the "Build" section, click "Add build step" and select "Invoke top-level Maven targets".
+   - Set the "Goals" field to `compile`.
+   - Choose Maven version `3.9.0` from the dropdown.
 
-To checkout and run the project in Eclipse, do:
-- File -> Import...
-- Check out Maven Projects from SCM
-- Choose Git from SCM menu
-  - If you do not see "Git" in the SCM menu, click "Find more SCM connectors in the m2e Marketplace" and install "m2e-egit". Restart Eclipse and start over.
-- Set the repository URL to https://github.com/vaadin/addressbook.git
-- Right click the imported "addressbook" and choose Run As -> Maven Build...
-  - Set the goal to "jetty:run" and click "Run"
+4. **Post-build Actions**:
+   - Under "Post-build Actions", click "Add post-build action".
+   - Select "Build other projects".
+   - Enter `Maven-Test` as the project to trigger after successful build.
 
-You should now have a Jetty server running on localhost:8080. Navigate to [http://localhost:8080/](http://localhost:8080/) to play with the application
+5. **Save** the configuration.
 
-To use the built in server adapters of Eclipse, instead of doing "Run As -> Maven Build..." you can do
-- Run As -> Run on Server
-- Select the server you want to run on, e.g. Apache Tomcat 8 and click ok
-- *Do not use the suggested J2EE Preview server* as it is outdated, deprecated and does not support Servlet 3, which is required for this application
+### Maven-Test
 
-*** End of documentation
+1. **Create a Freestyle Project**:
+   - Go to Jenkins dashboard.
+   - Click on "New Item" and select "Freestyle project".
+   - Name the project `Maven-Test` and click "OK".
+
+2. **Source Code Management**:
+   - Under "Source Code Management", select "Git".
+   - Enter your GitHub repository URL.
+   - Add your GitHub credentials to access the private repository.
+
+3. **Build**:
+   - Under the "Build" section, click "Add build step" and select "Invoke top-level Maven targets".
+   - Set the "Goals" field to `test`.
+   - Choose Maven version `3.9.0` from the dropdown.
+
+4. **Save** the configuration.
+
+## Pipeline Execution
+
+- When the `Maven-Compile` project is executed, it will compile the Maven project.
+- Upon successful completion, it triggers the `Maven-Test` project.
+- The `Maven-Test` project runs tests on the compiled Maven project.
+
+## Notes
+
+- Ensure Jenkins has the necessary permissions to access the private GitHub repository.
+- Verify that Maven version `3.9.0` is correctly configured in Jenkins.
+- Monitor the build and test results in Jenkins for successful execution.
+
+## Troubleshooting
+
+- **Failed Build**: Check the console output of the Jenkins job for any errors during the build or test process.
+- **Repository Access Issues**: Verify GitHub credentials and repository URL.
+- **Maven Configuration Issues**: Ensure Maven version `3.9.0` is installed and configured correctly in Jenkins.
+- **Plugin Issues**: Ensure all prerequisite plugins are installed and up-to-date.
+
